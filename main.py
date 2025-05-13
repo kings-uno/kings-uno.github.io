@@ -46,7 +46,18 @@ def deal(deck):
 
 
 def checkPlay(topCard, playCard, hand):
+  if(len(playCard.split(" ")) != 2):
+    return False
   return ((topCard.split(" ")[1] == playCard.split(" ")[1] or topCard.split(" ")[0] == playCard.split(" ")[0] or topCard.split(" ")[0] == "Wild" or playCard.split(" ")[0] == "Wild") and (playCard in hand))
+
+def skip(turn):
+  turn=turn+1
+  if(turn == 4):
+    turn = 0
+  return turn
+
+def reverse(direction):
+  return "reverse" if direction == "normal" else "normal"
 
 def playGame():
   deck = createDeck()
@@ -54,23 +65,38 @@ def playGame():
   playing = True
   topCard = deck[0]
   print("Top card is: " + topCard)
+  i = 0
+  direction = "normal"
   while playing:
-    for i in range(4):
-      print("Player " + str(i+1) + "'s hand: " + str(hands[i]))
-      if len(hands[i]) == 0:
-        print("Player " + str(i+1) + " wins!")
-        playing = False
-        break
-      else:
-        noValidMove = True
-        while noValidMove:
-          playCard = input("Player " + str(i+1) + ", play a card: ")
-          if checkPlay(topCard, playCard, hands[i]):
-            hands[i].remove(playCard)
-            deck.insert(0, playCard)
-            topCard = playCard
-            noValidMove = False
-          else:
-            print("Invalid move!")
+    print("Player " + str(i+1) + "'s hand: " + str(hands[i]))
+    if len(hands[i]) == 0:
+      print("Player " + str(i+1) + " wins!")
+      playing = False
+      break
+    else:
+      noValidMove = True
+      while noValidMove:
+        playCard = input("Player " + str(i+1) + ", play a card: ")
+        if checkPlay(topCard, playCard, hands[i]):
+          hands[i].remove(playCard)
+          if(playCard.split(" ")[1] == "Skip"):
+            i = skip(i)
+            print("Skipped")
+          if(playCard.split(" ")[1] == "Reverse"):
+            direction = reverse(direction)
+            print("Reversed")
+          deck.insert(0, playCard)
+          topCard = playCard
+          noValidMove = False
+        else:
+          print("Invalid move!")
+    if(direction == "normal"):
+      i+=1
+    else:
+      i-=1
+    if(i == 4):
+      i = 0
+    if(i == -1):
+      i = 3
 
 playGame()

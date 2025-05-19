@@ -1,54 +1,70 @@
 import pygame
 import random
 
+class Card:
+  def __init__(self, color, value):
+    self.color = color
+    self.value = value
+
+  def __str__(self):
+    return self.color + " " + str(self.value)
+
+  def __repr__(self):
+    return self.__str__()
+  def __eq__(self, other):
+    return isinstance(other, Card) and self.color == other.color and self.value == other.value
+
+  def __hash__(self):
+    return hash((self.color, self.value))
+
 def createDeck():
   deck = []
   for i in range(10):
     if(i != 0):
       for j in range(2):
-        deck.append("Red " + str(i))
-        deck.append("Yellow " + str(i))
-        deck.append("Green " + str(i))
-        deck.append("Blue " + str(i))
+        deck.append(Card("Red", str(i)))
+        deck.append(Card("Yellow", str(i)))
+        deck.append(Card("Green", str(i)))
+        deck.append(Card("Blue", str(i)))
     else:
-      deck.append("Red " + str(i))
-      deck.append("Yellow " + str(i))
-      deck.append("Green " + str(i))
-      deck.append("Blue " + str(i))
+      deck.append(Card("Red", str(i)))
+      deck.append(Card("Yellow", str(i)))
+      deck.append(Card("Green", str(i)))
+      deck.append(Card("Blue", str(i)))
   for i in range(2):
-    deck.append("Red Skip")
-    deck.append("Yellow Skip")
-    deck.append("Green Skip")
-    deck.append("Blue Skip")
-    deck.append("Red +2")
-    deck.append("Yellow +2")
-    deck.append("Green +2")
-    deck.append("Blue +2")
-    deck.append("Red Reverse")
-    deck.append("Yellow Reverse")
-    deck.append("Green Reverse")
-    deck.append("Blue Reverse")
+    deck.append(Card("Red", "Skip"))
+    deck.append(Card("Yellow", "Skip"))
+    deck.append(Card("Green", "Skip"))
+    deck.append(Card("Blue", "Skip"))
+    deck.append(Card("Red", "+2"))
+    deck.append(Card("Yellow", "+2"))
+    deck.append(Card("Green", "+2"))
+    deck.append(Card("Blue", "+2"))
+    deck.append(Card("Red", "Reverse"))
+    deck.append(Card("Yellow", "Reverse"))
+    deck.append(Card("Green", "Reverse"))
+    deck.append(Card("Blue", "Reverse"))
   for i in range(4):
-    deck.append("Wild +4")
-    deck.append("Wild card")
+    deck.append(Card("Wild", "+4"))
+    deck.append(Card("Wild", "Card"))
   random.shuffle(deck)
   return deck
 
 
 def deal(deck):
-  hands = [[None for _ in range(5)] for _ in range(4)]
-  for i in range(5):
+  hands = [[None for _ in range(7)] for _ in range(4)]
+  for i in range(7):
     for j in range(4):
       card = deck[0]
       hands[j][i] = card
       deck.remove(card)
   return hands
 
-
 def checkPlay(topCard, playCard, hand):
   if(len(playCard.split(" ")) != 2):
     return False
-  return ((topCard.split(" ")[1] == playCard.split(" ")[1] or topCard.split(" ")[0] == playCard.split(" ")[0] or topCard.split(" ")[0] == "Wild" or playCard.split(" ")[0] == "Wild") and (playCard in hand))
+  playCard = Card(str(playCard.split(" ")[0]), str(playCard.split(" ")[1]))
+  return ((topCard.value == playCard.value or topCard.color == playCard.color or topCard.color == "Wild" or playCard.color == "Wild") and (playCard in hand))
 
 def skip(turn):
   turn=turn+1
@@ -64,7 +80,7 @@ def playGame():
   hands = deal(deck)
   playing = True
   topCard = deck[0]
-  print("Top card is: " + topCard)
+  print("Top card is: " + str(topCard))
   i = 0
   direction = "normal"
   while playing:
@@ -78,11 +94,12 @@ def playGame():
       while noValidMove:
         playCard = input("Player " + str(i+1) + ", play a card: ")
         if checkPlay(topCard, playCard, hands[i]):
+          playCard = Card(str(playCard.split(" ")[0]), str(playCard.split(" ")[1]))
           hands[i].remove(playCard)
-          if(playCard.split(" ")[1] == "Skip"):
+          if(playCard.value == "Skip"):
             i = skip(i)
             print("Skipped")
-          if(playCard.split(" ")[1] == "Reverse"):
+          if(playCard.value == "Reverse"):
             direction = reverse(direction)
             print("Reversed")
           deck.insert(0, playCard)

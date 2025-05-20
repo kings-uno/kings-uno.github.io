@@ -66,65 +66,106 @@ def checkPlay(topCard, playCard, hand):
   playCard = Card(str(playCard.split(" ")[0]), str(playCard.split(" ")[1]))
   return ((topCard.value == playCard.value or topCard.color == playCard.color or topCard.color == "Wild" or playCard.color == "Wild") and (playCard in hand))
 
-def skip(turn):
-  turn=turn+1
-  if(turn == 4):
-    turn = 0
+def skip(turn, direction):
+  if(direction == "normal"):
+    turn=turn+1
+    if(turn == 4):
+      turn = 0
+  else:
+    turn=turn-1
+    if(turn == -1):
+      turn = 3
   return turn
+  
 
 def reverse(direction):
   return "reverse" if direction == "normal" else "normal"
 
-def drawCard(deck, hand):
+def reshuffle(discardPile):
+  return random.shuffle(discardPile)
+
+def drawCard(deck, hand, discardPile):
+  if(len(deck) == 0):
+    deck = reshuffle(discardPile)
   hand.append(deck[0])
   deck.remove(deck[0])
   return hand
 
+def pickColor(player):
+  if player == 0:
+    color = input("Choose a color (Red, Yellow, Green, Blue): ")
+    while color not in ["Red", "Yellow", "Green", "Blue"]:
+      print("Invalid color!")
+      color = input("Choose a color (Red, Yellow, Green, Blue): ")
+  else:
+    color = random.choice(["Red", "Yellow", "Green", "Blue"])
+  return color
+
 
 def playGame():
   deck = createDeck()
+  discardPile = []
   hands = deal(deck)
   playing = True
-  topCard = deck[0]
+  discardPile.append(deck[0])
+  deck.remove(deck[0])
+  topCard = discardPile[0]
   print("Top card is: " + str(topCard))
   i = 0
   direction = "normal"
   while playing:
-    print("Player " + str(i+1) + "'s hand: " + str(hands[i]))
     if len(hands[i]) == 0:
-      print("Player " + str(i+1) + " wins!")
+      print("Player " + str(i+1) + " Wins!")
       playing = False
       break
     else:
+      possibleMove = False
+      while not possibleMove:
+        for card in hands[i]:
+          if checkPlay(topCard, str(card), hands[i]):
+            possibleMove = True
+        if not possibleMove:
+          print("No valid moves, drawing a card...")
+          hands[i] = drawCard(deck, hands[i], discardPile)
+          print("Drew: " + str(hands[i][-1]))
+          continue
+      print("Player " + str(i+1) + "'s hand: " + str(hands[i]))
       noValidMove = True
       while noValidMove:
-        playCard = input("Player " + str(i+1) + ", play a card: ")
+        if(i == 0):
+          playCard = input("Player " + str(i+1) + ", play a card: ")
+        else:
+          for card in hands[i]:
+            if checkPlay(topCard, str(card), hands[i]):
+              playCard = str(card)
+              break
         if checkPlay(topCard, playCard, hands[i]):
+          print("Played: " + playCard)
           playCard = Card(str(playCard.split(" ")[0]), str(playCard.split(" ")[1]))
           hands[i].remove(playCard)
+          discardPile.append(playCard)
           if(playCard.value == "Skip"):
-            i = skip(i)
+            i = skip(i, direction)
             print("Skipped")
           if(playCard.value == "Reverse"):
             direction = reverse(direction)
             print("Reversed")
           if(playCard.value == "+2"):
+            i = skip(i, direction)
             for j in range(2):
-              hands[i+1] = drawCard(deck, hands[i+1])
+              hands[i] = drawCard(deck, hands[i], discardPile)
             print("Drew 2 cards")
-            if(direction == "normal"):
-              i+=1
-            else:
-              i-=1
           if(playCard.value == "+4"):
+            i = skip(i, direction)
             for j in range(4):
-              hands[i+1] = drawCard(deck, hands[i+1])
+              hands[i] = drawCard(deck, hands[i], discardPile)
             print("Drew 4 cards")
-            if(direction == "normal"):
-              i+=1
-            else:
-              i-=1
-          deck.insert(0, playCard)
+          if(playCard.color == "Wild"):
+            color = pickColor(i)
+            playCard.color = color
+            playCard.value = "Wild"
+            print("Changed color to " + color)
+          discardPile.insert(0, playCard)
           topCard = playCard
           noValidMove = False
         else:

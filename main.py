@@ -156,11 +156,15 @@ def playGame():
               hands[i] = drawCard(deck, hands[i], discardPile)
             print("Drew 2 cards")
           if(playCard.value == "+4"):
+            color = pickColor(i)
+            playCard.color = color
+            playCard.value = "Wild"
             i = skip(i, direction)
             for j in range(4):
               hands[i] = drawCard(deck, hands[i], discardPile)
             print("Drew 4 cards")
-          if(playCard.color == "Wild"):
+            print("Changed color to " + color)
+          if(playCard.value == "Card"):
             color = pickColor(i)
             playCard.color = color
             playCard.value = "Wild"

@@ -75,6 +75,12 @@ def skip(turn):
 def reverse(direction):
   return "reverse" if direction == "normal" else "normal"
 
+def drawCard(deck, hand):
+  hand.append(deck[0])
+  deck.remove(deck[0])
+  return hand
+
+
 def playGame():
   deck = createDeck()
   hands = deal(deck)
@@ -102,6 +108,22 @@ def playGame():
           if(playCard.value == "Reverse"):
             direction = reverse(direction)
             print("Reversed")
+          if(playCard.value == "+2"):
+            for j in range(2):
+              hands[i+1] = drawCard(deck, hands[i+1])
+            print("Drew 2 cards")
+            if(direction == "normal"):
+              i+=1
+            else:
+              i-=1
+          if(playCard.value == "+4"):
+            for j in range(4):
+              hands[i+1] = drawCard(deck, hands[i+1])
+            print("Drew 4 cards")
+            if(direction == "normal"):
+              i+=1
+            else:
+              i-=1
           deck.insert(0, playCard)
           topCard = playCard
           noValidMove = False

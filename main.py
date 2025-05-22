@@ -647,8 +647,10 @@ def playGame():
         card_rects = game.draw_game_state(hands, i, topCard, message)
         message = ""
         
+        # Check win at the start of the turn
         if len(hands[i]) == 0:
             message = f"Player {i+1} Wins!"
+            print("game is over")
             game.draw_game_state(hands, i, topCard, message)
             pygame.time.wait(3000)
             playing = False
@@ -666,6 +668,14 @@ def playGame():
             pygame.time.wait(1000)
             hands[i] = drawCard(deck, hands[i], discardPile)
             message = f"Drew: {str(hands[i][-1])}"
+            # Check win after drawing a card
+            if len(hands[i]) == 0:
+                message = f"Player {i+1} Wins!"
+                print("game is over")
+                game.draw_game_state(hands, i, topCard, message)
+                pygame.time.wait(3000)
+                playing = False
+                break
             continue
         
         if i == 0:  # Human player
@@ -695,6 +705,15 @@ def playGame():
         hands[i].remove(playCard)
         discardPile.append(playCard)
         
+        # Check win after playing a card
+        if len(hands[i]) == 0:
+            message = f"Player {i+1} Wins!"
+            print("game is over")
+            game.draw_game_state(hands, i, topCard, message)
+            pygame.time.wait(3000)
+            playing = False
+            break
+        
         if playCard.value == "Skip":
             i = skip(i, direction)
             message = "Skipped!"
@@ -706,6 +725,14 @@ def playGame():
             for _ in range(2):
                 hands[i] = drawCard(deck, hands[i], discardPile)
             message = "Drew 2 cards!"
+            # Check win after forced draw
+            if len(hands[i]) == 0:
+                message = f"Player {i+1} Wins!"
+                print("game is over")
+                game.draw_game_state(hands, i, topCard, message)
+                pygame.time.wait(3000)
+                playing = False
+                break
         elif playCard.value == "+4":
             color = game.show_color_picker() if i == 0 else pickColor(i)
             playCard.color = color
@@ -714,6 +741,14 @@ def playGame():
             for _ in range(4):
                 hands[i] = drawCard(deck, hands[i], discardPile)
             message = f"Drew 4 cards! Color changed to {color}"
+            # Check win after forced draw
+            if len(hands[i]) == 0:
+                message = f"Player {i+1} Wins!"
+                print("game is over")
+                game.draw_game_state(hands, i, topCard, message)
+                pygame.time.wait(3000)
+                playing = False
+                break
         elif playCard.value == "Card":
             color = game.show_color_picker() if i == 0 else pickColor(i)
             playCard.color = color
